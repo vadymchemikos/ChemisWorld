@@ -1,0 +1,288 @@
+:root{color-scheme:dark;--bg:#0b1421;--panel:#142337;--panel2:#1b2d43;--text:#edf4ff;--muted:#91a5bd;--accent:#65c7bd;--line:#263c54}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#1a3550 0%,transparent 42%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;padding-bottom:88px}
+.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #ffffff12;background:#0b1421dd;position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}
+.brand{display:flex;gap:10px;align-items:center}.brand-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#8be0d4,#277c89);display:grid;place-items:center;color:#08202a;font-weight:900;letter-spacing:-1px}.brand b{display:block;font-size:13px;letter-spacing:1.5px}.brand small{display:block;color:var(--muted);font-size:8px;letter-spacing:1.2px;margin-top:3px}
+button{font:inherit;color:inherit;border:0;cursor:pointer}.avatar{width:36px;height:36px;border-radius:50%;background:#263c54;font-weight:700}
+main{max-width:720px;margin:auto;padding:22px 16px}.welcome{padding:13px 3px 20px}.eyebrow,.section-head small{font-size:9px;letter-spacing:1.8px;color:var(--accent);font-weight:800}.welcome h1{font-size:35px;line-height:1.05;margin:10px 0}.welcome h1 em{font-style:normal;color:var(--accent)}.welcome p{max-width:340px;color:var(--muted);font-size:13px;line-height:1.55;margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:5px 0 22px}.stats div{padding:13px;background:var(--panel);border:1px solid var(--line);border-radius:13px}.stats small{display:block;font-size:8px;letter-spacing:1.2px;color:var(--muted)}.stats strong{display:block;font-size:21px;margin-top:4px}
+.map-panel,.quick{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:18px}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.section-head h2{font-size:18px;margin:4px 0 0}.live-dot{font-size:8px;color:var(--accent);border:1px solid #65c7bd55;border-radius:30px;padding:5px 8px;letter-spacing:1px}
+.map-placeholder{height:190px;position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(135deg,#122b3c,#183c4b 55%,#102536);border:1px solid #315365}.gridlines{position:absolute;inset:0;background-image:linear-gradient(#9bd8d322 1px,transparent 1px),linear-gradient(90deg,#9bd8d322 1px,transparent 1px);background-size:32px 32px}
+.continent{position:absolute;background:#6b9d8d;opacity:.65;filter:drop-shadow(0 5px 4px #06121c);border:1px solid #a8d5b766}.c1{width:100px;height:63px;left:12%;top:27%;border-radius:55% 35% 45% 40%;transform:rotate(-18deg)}.c2{width:53px;height:92px;left:29%;top:55%;border-radius:45% 55% 60% 35%;transform:rotate(-20deg)}.c3{width:130px;height:65px;right:18%;top:25%;border-radius:50% 40% 55% 35%;transform:rotate(8deg)}.c4{width:67px;height:42px;right:11%;bottom:16%;border-radius:55% 45% 40% 55%}
+.map-label{position:absolute;top:12px;left:13px;font-size:9px;letter-spacing:2px;color:#d5eee8;font-weight:800}.map-note{position:absolute;bottom:12px;left:13px;font-size:10px;color:#d0e2e7;line-height:1.4;text-shadow:0 1px 3px #000}
+.primary{width:100%;margin-top:12px;padding:13px 15px;border-radius:11px;background:linear-gradient(90deg,#55b9ae,#76d2c3);color:#08202a;font-weight:800;text-align:left;display:flex;justify-content:space-between}.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.tile{background:var(--panel2);border:1px solid #2a425a;border-radius:13px;padding:13px;text-align:left;display:flex;flex-direction:column;gap:5px}.tile span{font-size:20px}.tile b{font-size:13px}.tile small{font-size:10px;color:var(--muted)}
+.bottom{position:fixed;bottom:0;left:0;right:0;height:70px;background:#0b1421f2;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:env(safe-area-inset-bottom);z-index:4}.bottom button{background:none;color:var(--muted);font-size:9px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:55px}.bottom button span{font-size:19px}.bottom button.selected{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:84px;transform:translate(-50%,15px);opacity:0;background:#e5f5f1;color:#10252a;padding:10px 15px;border-radius:10px;font-size:12px;transition:.2s;pointer-events:none;white-space:nowrap;z-index:5}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+#worldMap{height:260px;background:#122b3c;z-index:1}
+.map-attribution{font-size:9px;color:var(--muted);margin:7px 2px 0}
+.leaflet-container{font-family:system-ui,sans-serif;background:#122b3c}
+.leaflet-control-attribution{font-size:8px!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#142337;color:#edf4ff}
+.leaflet-popup-content{font-size:12px}
+.country-shape{fill:#4f9c8d;fill-opacity:.18;stroke:#75cfc0;stroke-width:1.1;stroke-opacity:.85}
+.country-shape:hover{fill-opacity:.42}
+
+.map-status{font-size:10px;color:var(--accent);padding:0 2px 8px;min-height:22px}
+.map-popup-action{margin-top:7px;padding:6px 10px;border-radius:7px;background:#65c7bd;color:#09232a;font-weight:700;font-size:11px}
+
+.region-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.region-description{font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 12px}
+.region-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.region-metrics div{background:var(--panel2);border:1px solid #2a425a;border-radius:10px;padding:10px;min-width:0}
+.region-metrics small{display:block;font-size:8px;letter-spacing:.8px;color:var(--muted)}
+.region-metrics b{display:block;font-size:12px;margin-top:5px;overflow-wrap:anywhere}
+.data-note{font-size:9px;color:var(--muted);line-height:1.5;margin:10px 1px}
+.party-head{margin-top:18px}
+.party-list{display:flex;flex-direction:column;gap:8px}
+.empty-parties{font-size:11px;color:var(--muted);margin:0;padding:12px;background:var(--panel2);border-radius:10px}
+.party-item{background:var(--panel2);border:1px solid #2a425a;border-radius:11px;padding:11px}
+.party-item b{display:block;font-size:12px}.party-item small{color:var(--muted);font-size:10px}
+.party-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.primary:disabled,.secondary:disabled{opacity:.4;cursor:not-allowed}
+.secondary{width:100%;padding:12px;border-radius:11px;background:#263c54;color:#e9f4ff;font-size:12px;font-weight:700}
+.modal-backdrop{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
+.modal-backdrop.open{display:flex}
+.modal{width:100%;max-width:440px;background:#142337;border:1px solid #35506b;border-radius:18px;padding:17px;box-shadow:0 18px 60px #0009}
+.modal label{display:block;font-size:10px;color:var(--muted);margin:12px 0 5px}
+.modal input,.modal select,.modal textarea{width:100%;background:#0b1828;color:var(--text);border:1px solid #35506b;border-radius:9px;padding:11px;font:inherit;font-size:12px;outline:none}
+.modal textarea{resize:vertical}
+.close-modal{background:#263c54;border-radius:8px;padding:7px 10px}
+.modal .primary{margin-top:15px}
+
+.economy-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.economy-label{display:block;font-size:10px;color:var(--muted);margin:12px 0 6px}
+.economy-select{width:100%;background:var(--panel2);color:var(--text);border:1px solid #36516b;border-radius:9px;padding:11px;font-size:12px}
+.treasury{background:linear-gradient(135deg,#173e48,#1c344a);border:1px solid #3b6a70;border-radius:14px;padding:14px;margin:12px 0}
+.treasury small{font-size:8px;letter-spacing:1.5px;color:#a7d9d2}
+.treasury div{margin-top:5px}.treasury strong{font-size:29px;letter-spacing:-1px}.treasury span{font-size:12px;color:#a7d9d2;font-weight:800}
+.treasury p{font-size:10px;color:#c2d8df;margin:5px 0 0}
+.economy-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+.economy-metrics div{background:var(--panel2);padding:10px;border-radius:10px;min-width:0}
+.economy-metrics small{display:block;font-size:8px;color:var(--muted);letter-spacing:.6px}
+.economy-metrics b{display:block;font-size:12px;margin-top:5px}
+.economy-actions{display:grid;gap:8px;margin-top:12px}
+.economy-actions .primary{margin:0}
+.economy-log{margin-top:11px;padding:11px;border-radius:10px;background:#0d1a29;color:#b9cbdc;font-size:10px;line-height:1.6;min-height:42px}
+
+.state-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.state-list{display:grid;gap:9px}
+.state-item{display:flex;gap:11px;align-items:center;padding:11px;background:var(--panel2);border:1px solid #2a425a;border-radius:12px}
+.state-flag{width:48px;height:32px;border-radius:5px;display:grid;place-items:center;color:white;font-size:20px;text-shadow:0 1px 3px #0008;border:1px solid #ffffff55;flex:none}
+.state-item b{font-size:13px;display:block}.state-item small{font-size:10px;color:var(--muted);display:block;margin-top:3px}
+.state-actions{display:grid;gap:8px;margin-top:12px}.state-actions .primary{margin:0}
+
+.gov-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.gov-empty{padding:14px;background:var(--panel2);border-radius:10px;color:var(--muted);font-size:12px;line-height:1.5}
+.gov-head{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(120deg,#1c3c50,#183044);padding:13px;border-radius:12px;margin-top:12px}
+.gov-head small{display:block;color:#a7d9d2;font-size:8px;letter-spacing:1px}.gov-head b{display:block;font-size:15px;margin-top:4px}
+.gov-input{width:100%;margin:6px 0;padding:11px;border-radius:9px;background:var(--panel2);border:1px solid #36516b;color:var(--text);font:inherit;font-size:12px}
+.gov-subhead{font-size:13px;font-weight:800;margin:18px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+.gov-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.gov-metrics div{background:var(--panel2);padding:10px;border-radius:10px}.gov-metrics small{display:block;color:var(--muted);font-size:8px}.gov-metrics b{font-size:16px}
+.ministry-list,.law-list{display:grid;gap:7px;margin-top:8px}
+.ministry-item,.law-item{padding:10px;background:var(--panel2);border:1px solid #2a425a;border-radius:10px}
+.ministry-item b,.law-item b{display:block;font-size:12px}.ministry-item small,.law-item small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.law-item p{font-size:11px;color:#c4d4e4;margin:6px 0 0;line-height:1.45}
+.law-actions{display:flex;gap:6px;margin-top:8px}.law-actions button{padding:7px 9px;border-radius:7px;background:#29465b;font-size:10px}
+
+.diplomacy-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.diplomacy-pair{display:grid;gap:2px}
+.diplomacy-actions{display:grid;gap:8px;margin-top:12px}
+.diplomacy-actions button{padding:12px;border-radius:10px;text-align:left;background:var(--panel2);border:1px solid #2a425a;font-size:11px}
+.diplomacy-actions button:disabled{opacity:.45}
+.diplomacy-subhead{font-size:13px;font-weight:800;margin:18px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rep-grid div{padding:11px;border-radius:10px;background:var(--panel2);min-width:0}
+.rep-grid small{display:block;font-size:9px;color:var(--muted);overflow-wrap:anywhere}
+.rep-grid b{display:block;font-size:15px;margin-top:5px}
+.diplomacy-list{display:grid;gap:8px}
+.diplomacy-item{padding:11px;background:var(--panel2);border:1px solid #2a425a;border-radius:11px}
+.diplomacy-item b{display:block;font-size:12px}
+.diplomacy-item small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
+.diplomacy-item p{font-size:11px;color:#c4d4e4;margin:6px 0 0;line-height:1.4}
+.diplomacy-item button{margin-top:8px;padding:7px 10px;border-radius:7px;background:#29465b;font-size:10px}
+
+.account-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 18px}
+.account-profile{display:flex;align-items:center;gap:12px;margin:12px 0 16px}
+.account-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#254d61;color:#d7e8f1;font-size:22px;font-weight:900;border:1px solid #4c7488}
+.account-identity{display:grid;gap:4px;min-width:0}.account-identity b{font-size:15px}.account-identity small{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+.player-code-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;background:var(--panel2);border-radius:10px}
+.player-code-row span{font-size:12px;font-weight:800;letter-spacing:1px}
+.account-card textarea{width:100%;box-sizing:border-box;color:var(--text);background:var(--panel2);border:1px solid var(--line);padding:10px;border-radius:9px}
+
+#onlineAccountCard input{width:100%;box-sizing:border-box;color:var(--text);background:var(--panel2);border:1px solid var(--line);padding:11px;border-radius:9px;margin:4px 0 10px}
+#onlineAccountCard [hidden]{display:none!important}
+.online-player{padding:10px;border-bottom:1px solid var(--line);display:grid;gap:3px}
+.online-player small{color:var(--muted);font-size:11px}
+
+
+/* v1.6.0 interactive territorial map controls */
+.map-tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.map-tools button{font-size:12px;padding:10px 12px}
+.map-tools button:disabled{opacity:.45}
+.map-status{line-height:1.45}
+
+
+/* v1.7.0 city and settlement management */
+#citiesPanel .online-player{margin:8px 0}
+#citiesPanel button{margin:4px 4px 0 0}
+
+
+/* Chemis World — reference-inspired mobile interface */
+:root{
+ --bg:#363636;--panel:#252525;--panel2:#303030;--text:#f0f0f0;
+ --muted:#929292;--line:#484848;--accent:#4169df;--green:#50b832;
+ --red:#d8321d;--yellow:#d8df39;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text)}
+body{padding-bottom:82px;background:#363636;font-family:Roboto,"Arial Narrow",Arial,sans-serif}
+.topbar.cw-topbar{
+ height:151px;min-height:151px;padding:66px 18px 12px;
+ display:grid;grid-template-columns:48px 1fr 86px;align-items:center;
+ background:#252525;border:0;backdrop-filter:none;position:sticky;top:0;
+ z-index:1000;box-shadow:none
+}
+.cw-topbar h1{
+ margin:0;text-align:center;font-family:"Arial Black",system-ui,sans-serif;
+ font-size:29px;line-height:1;letter-spacing:1px;font-weight:900;
+ text-transform:none;color:#f2f2f2
+}
+.header-icon{background:none;border:0;color:#f5f5f5;font-size:37px;
+ line-height:1;min-width:42px;min-height:42px;padding:0;display:grid;place-items:center}
+.header-actions{display:flex;justify-content:flex-end;gap:8px}
+.help-icon{border:3px solid #f4f4f4;border-radius:50%;width:42px;height:42px;
+ font-size:27px;font-weight:700}
+main{width:100%;max-width:760px;margin:0 auto;padding:14px 14px 28px}
+.cw-page{display:none;min-height:calc(100vh - 235px)}
+.cw-page.active{display:block}
+.cw-page > section{margin:0 0 14px}
+.welcome{padding:14px;background:#252525;margin-bottom:14px}
+.welcome h1{font-family:"Arial Black",system-ui,sans-serif;font-size:28px;line-height:1.1}
+.welcome h1 em{color:#d8df39}
+.eyebrow,.section-head small{color:#aaa;letter-spacing:.4px;font-size:12px}
+.section-head{margin-bottom:10px}
+.section-head h2{font-size:20px}
+.live-dot{border-radius:0;color:#b8b8b8;border-color:#555}
+.stats{gap:4px;margin:0 0 14px}
+.stats div{background:#252525;border:0;border-radius:0;text-align:center;padding:14px 5px}
+.stats small{font-size:13px;letter-spacing:0;color:#999}
+.stats strong{font-family:"Arial Black",system-ui,sans-serif;font-size:26px}
+.map-panel,.region-card,.state-card,.diplomacy-card,.gov-card,.economy-card,
+.account-card,.quick{
+ background:#252525;border:0;border-radius:0;padding:14px;margin-bottom:14px;
+ box-shadow:none
+}
+.map-panel .section-head{display:none}
+#mapStatus{background:#252525;color:#eee;padding:8px 10px;margin:0;font-size:14px}
+.map-tools{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.map-tools button{font-size:12px;padding:8px 10px}
+#worldMap,.cw-world-map{height:calc(100vh - 315px);min-height:390px;max-height:900px;
+ border:0;border-radius:0;background:#526b9c}
+.leaflet-container{background:#526b9c}
+.map-attribution{font-size:9px;color:#aaa}
+.primary,.secondary{
+ width:100%;border-radius:0;padding:11px 12px;margin-top:8px;
+ font-weight:500;text-align:center;display:block
+}
+.primary{background:#50b832;color:#fff}
+.secondary{background:#363636;color:#bbb;border:1px solid #555}
+.economy-select,.economy-input,input,textarea,select{
+ border-radius:0!important;background:#303030!important;border:1px solid #555!important;
+ color:#f0f0f0!important
+}
+.region-description,.data-note{color:#aaa}
+.region-metrics{gap:6px}
+.region-metrics>div{background:#303030;border:0;border-radius:0}
+.bottom.cw-bottom{
+ height:78px;padding:6px 0 max(5px,env(safe-area-inset-bottom));
+ background:#252525;border-top:0;z-index:1100;box-shadow:0 -3px 10px #0002
+}
+.cw-bottom button{min-width:0;flex:1;color:#888;font-size:12px;font-weight:600;gap:4px}
+.cw-bottom button span{font-size:31px;line-height:32px}
+.cw-bottom button.selected{color:#fff}
+.toast{background:#f0f0f0;color:#222;border-radius:2px;bottom:88px}
+.modal{background:#252525;border:1px solid #555;border-radius:0}
+.modal-backdrop{z-index:1200}
+.cw-card{background:#252525;margin-bottom:14px;padding:14px}
+.cw-card h2,.cw-card h3{margin:0 0 12px;font-family:"Arial Black",system-ui,sans-serif}
+.cw-muted{color:#929292}
+.cw-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cw-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.cw-stat{background:#303030;padding:10px 4px}
+.cw-stat b{display:block;font-family:"Arial Black",system-ui,sans-serif;font-size:22px}
+.cw-stat small{color:#999}
+.cw-list-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #484848}
+.cw-list-item:last-child{border-bottom:0}
+.cw-avatar{width:54px;height:54px;flex:0 0 54px;background:#444;display:grid;place-items:center;font-size:25px}
+.cw-item-main{min-width:0;flex:1}
+.cw-item-main b{display:block;font-size:16px}
+.cw-item-main small{display:block;color:#999;margin-top:3px}
+.cw-positive{color:#50b832;font-weight:800}
+.cw-negative{color:#e13a25;font-weight:800}
+.cw-tabs{display:grid;grid-template-columns:repeat(4,1fr);background:#252525}
+.cw-tabs button{background:none;color:#999;padding:12px 3px;border-bottom:4px solid transparent}
+.cw-tabs button.active{color:#fff;border-color:#4169df}
+.cw-progress{height:9px;background:#171717;margin-top:8px}
+.cw-progress i{display:block;height:100%;width:32%;background:#50b832}
+.cw-resource{font-family:"Arial Black",system-ui,sans-serif;font-size:23px}
+.cw-yellow{color:#d8df39}
+.cw-green{color:#50b832}
+.cw-blue{color:#42a9ff}
+.cw-red{color:#df3d2b}
+.cw-article{padding:12px 0;border-bottom:1px solid #505050}
+.cw-article time{display:block;color:#999;margin-bottom:8px}
+.cw-article strong{font-size:17px}
+.cw-fab{position:fixed;right:28px;bottom:100px;width:64px;height:64px;border-radius:50%;
+ background:#50b832;color:#fff;font-size:38px;z-index:1050;box-shadow:0 2px 8px #0005}
+@media(min-width:700px){
+ main{padding-left:22px;padding-right:22px}
+ #worldMap{height:65vh}
+}
+@media(max-width:380px){
+ .cw-topbar h1{font-size:24px}
+ .cw-bottom button{font-size:10px}
+ .cw-bottom button span{font-size:27px}
+}
+
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+.map-panel{position:relative;padding:0;background:#252525}
+.map-panel #mapStatus{padding:9px 12px}
+.cw-map-zoom{position:fixed;right:14px;bottom:102px;z-index:1150;display:flex;flex-direction:column;gap:8px}
+.cw-map-zoom button{width:58px;height:58px;background:#4169df;color:#fff;border:3px solid #fff;
+ font-size:38px;line-height:1;font-weight:400;box-shadow:0 2px 5px #0007}
+.leaflet-control-zoom{display:none!important}
+.leaflet-control-attribution{display:none!important}
+
+/* v1.9.1 visual polish and page-specific spacing */
+.cw-page{padding-bottom:16px}
+.cw-page.active{animation:cwFadeIn .14s ease-out}
+@keyframes cwFadeIn{from{opacity:.88}to{opacity:1}}
+.cw-page .welcome{margin-top:0}
+.cw-page .region-card,.cw-page .state-card,.cw-page .diplomacy-card,
+.cw-page .gov-card,.cw-page .economy-card,.cw-page .account-card{margin-top:0}
+.cw-page .region-card h2,.cw-page .state-card h2,.cw-page .economy-card h2,
+.cw-page .account-card h2{font-family:"Arial Black",system-ui,sans-serif;letter-spacing:.25px}
+.cw-page .cw-card{border:0;border-radius:0}
+.cw-page input,.cw-page textarea,.cw-page select{min-height:42px;padding:9px 11px}
+.cw-page button{min-height:42px}
+.cw-page .cw-fab{min-height:64px}
+#page-map .map-panel{margin:0 -14px 14px}
+#page-map .map-tools{padding:0 12px}
+#page-map #worldMap{height:calc(100dvh - 265px);min-height:440px;max-height:none}
+#page-map .map-attribution{padding:0 12px}
+#page-map .map-panel> .primary{margin:10px 12px;width:calc(100% - 24px)}
+#page-work .treasury{background:#252525;border:0;border-radius:0;padding:14px}
+#page-work .treasury strong{font-family:"Arial Black",system-ui,sans-serif;font-size:30px}
+#page-work .economy-metrics>div{border-radius:0;background:#303030}
+#page-profile .account-profile{background:#252525;border:0;border-radius:0}
+#page-profile .account-avatar{border-radius:0}
+#page-overview .stats{margin-bottom:14px}
+#page-overview .quick .tiles{gap:8px}
+#page-overview .quick .tile{border-radius:0;background:#303030;border:0}
+@media(max-width:420px){
+ .cw-topbar{grid-template-columns:42px 1fr 78px;padding-left:12px;padding-right:12px}
+ #page-map #worldMap{height:calc(100dvh - 250px)}
+ .cw-grid3{gap:5px}
+ .cw-stat b{font-size:19px}
+}

@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101b2b">
+<title>Chemis World</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<header class="topbar cw-topbar">
+  <button class="header-icon" id="headerSearchBtn" aria-label="Пошук">⌕</button>
+  <h1 id="pageTitle">Огляд</h1>
+  <div class="header-actions">
+    <button class="header-icon help-icon" id="headerHelpBtn" aria-label="Допомога">?</button>
+    <button class="header-icon" id="headerMenuBtn" aria-label="Меню">⋮</button>
+  </div>
+</header>
+<main>
+  <section class="welcome">
+    <div class="eyebrow">ГЛОБАЛЬНИЙ СИМУЛЯТОР</div>
+    <h1>Твій світ.<br><em>Твої рішення.</em></h1>
+    <p>Створюй політичні рухи, розвивай регіони та взаємодій з іншими гравцями.</p>
+  </section>
+  <section class="stats">
+    <div><small>СВІТ</small><strong>—</strong></div>
+    <div><small>ОНЛАЙН</small><strong>—</strong></div>
+    <div><small>РЕГІОНИ</small><strong>—</strong></div>
+    <div><small>ДЕРЖАВИ</small><strong>—</strong></div>
+  </section>
+  <section class="map-panel">
+    <div class="section-head"><div><small>ГОЛОВНИЙ РОЗДІЛ</small><h2>Світова мапа</h2></div><span class="live-dot">ПРОТОТИП</span></div>
+    <div id="mapStatus" class="map-status">Світ · обери країну</div>
+    <div class="map-tools">
+      <button id="mapWorldBtn" class="secondary">Увесь світ</button>
+      <button id="mapCountryBtn" class="secondary">Країна</button>
+      <button id="mapDistrictBtn" class="secondary">Завантажити райони</button>
+      <button id="mapAddTerritoryBtn" class="secondary">Додати територію до держави</button>
+    </div>
+    <div id="worldMap" class="map-placeholder cw-world-map" aria-label="Інтерактивна світова карта"></div>
+    <div class="cw-map-zoom" aria-label="Масштаб карти">
+      <button id="cwZoomIn" aria-label="Збільшити">+</button>
+      <button id="cwZoomOut" aria-label="Зменшити">−</button>
+    </div>
+    <p class="map-attribution">Карта: OpenStreetMap · Межі країн: Natural Earth</p>
+    <button class="primary" id="mapBtn">Відкрити карту <span>→</span></button>
+  </section>
+  <section class="region-card" id="regionCard">
+    <div class="section-head"><div><small>ОБРАНА ТЕРИТОРІЯ</small><h2 id="regionTitle">Регіон не обрано</h2></div><span class="live-dot">LOCAL DEMO</span></div>
+    <p id="regionDescription" class="region-description">Натисни на країну, а потім на область або район, щоб переглянути картку території.</p>
+    <div class="region-metrics">
+      <div><small>АДМІНРІВЕНЬ</small><b id="regionLevel">—</b></div>
+      <div><small>НАСЕЛЕННЯ</small><b>—</b></div>
+      <div><small>ЕКОНОМІКА</small><b>—</b></div>
+    </div>
+    <p class="data-note">Населення, площа та економічні показники підключатимуться з перевірених наборів даних на наступному етапі. Зараз вони не вигадуються.</p>
+    <div class="section-head party-head"><div><small>ПОЛІТИЧНЕ ЖИТТЯ</small><h2>Партії та вибори</h2></div></div>
+    <div id="partyList" class="party-list"><p class="empty-parties">У цьому регіоні ще немає створених партій.</p></div>
+    <div class="party-actions">
+      <button class="primary" id="createPartyBtn" disabled>＋ Створити партію</button>
+      <button class="secondary" id="electionBtn" disabled>Провести тестові вибори</button>
+    </div>
+    <p id="politicsStatus" class="data-note">Політичні дані зберігаються лише локально в цьому прототипі.</p>
+  </section>
+
+
+  <section class="state-card" id="stateCard">
+    <div class="section-head"><div><small>ДЕРЖАВОТВОРЕННЯ</small><h2>Мої держави</h2></div><span class="live-dot">LOCAL DEMO</span></div>
+    <p class="region-description">Створюй ігрові держави з обраних територій. Кожна територія може належати лише одній державі в цьому прототипі.</p>
+    <div id="stateList" class="state-list"><p class="empty-parties">Поки що держав не створено.</p></div>
+    <div class="state-actions">
+      <button class="primary" id="createStateBtn" disabled>＋ Заснувати державу з обраного регіону</button>
+      <label class="economy-label" for="joinStateSelect">Або приєднати обраний регіон до держави</label>
+      <select id="joinStateSelect" class="economy-select"><option value="">Спочатку створи державу</option></select>
+      <button class="secondary" id="joinStateBtn" disabled>Приєднати територію</button>
+    </div>
+    <p class="data-note" id="stateStatus">Території та держави зберігаються локально на цьому пристрої. Це ще не змінює спільну онлайн-мапу.</p>
+  </section>
+
+
+
+  <section class="diplomacy-card" id="diplomacyCard">
+    <div class="section-head"><div><small>МІЖНАРОДНІ ВІДНОСИНИ</small><h2>Дипломатія</h2></div><span class="live-dot">LOCAL DEMO</span></div>
+    <p class="region-description">Встановлюй відносини між створеними державами, укладай угоди та формуй міжнародні об'єднання.</p>
+    <div class="diplomacy-pair">
+      <label class="economy-label" for="diplomacyFrom">Ініціатор</label>
+      <select id="diplomacyFrom" class="economy-select"><option value="">Створи держави</option></select>
+      <label class="economy-label" for="diplomacyTo">Інша держава</label>
+      <select id="diplomacyTo" class="economy-select"><option value="">Створи ще одну державу</option></select>
+    </div>
+    <div class="diplomacy-actions">
+      <button class="secondary" data-diplomacy="relations">🤝 Встановити дипломатичні відносини</button>
+      <button class="secondary" data-diplomacy="trade">📦 Запропонувати торговельну угоду</button>
+      <button class="secondary" data-diplomacy="alliance">🌐 Запропонувати союз</button>
+      <button class="secondary" data-diplomacy="recognition">🏛️ Визнати державу</button>
+    </div>
+    <div class="diplomacy-subhead">Міжнародна репутація</div>
+    <div class="rep-grid"><div><small id="repFromName">Держава 1</small><b id="repFromValue">50 / 100</b></div><div><small id="repToName">Держава 2</small><b id="repToValue">50 / 100</b></div></div>
+    <div class="diplomacy-subhead">Договори та відносини</div>
+    <div id="diplomacyList" class="diplomacy-list"><p class="empty-parties">Поки що міжнародних угод немає.</p></div>
+    <p class="data-note" id="diplomacyStatus">Дипломатичні дії поки зберігаються лише на цьому пристрої.</p>
+  </section>
+
+  <section class="gov-card" id="governmentCard">
+    <div class="section-head"><div><small>ДЕРЖАВНЕ УПРАВЛІННЯ</small><h2>Уряд і парламент</h2></div><span class="live-dot">LOCAL DEMO</span></div>
+    <label class="economy-label" for="govStateSelect">Держава для управління</label>
+    <select id="govStateSelect" class="economy-select"><option value="">Спочатку створи державу</option></select>
+    <div id="govEmpty" class="gov-empty">Створи державу та обери її, щоб сформувати уряд і парламент.</div>
+    <div id="govWorkspace" hidden>
+      <div class="gov-head">
+        <div><small>ГЛАВА ДЕРЖАВИ</small><b id="govLeaderName">Не призначено</b></div>
+        <span id="govStatus" class="live-dot">Управління</span>
+      </div>
+      <label class="economy-label" for="leaderInput">Ім'я глави держави</label>
+      <input id="leaderInput" class="gov-input" maxlength="40" placeholder="Ім'я персонажа">
+      <button id="saveLeaderBtn" class="secondary">Зберегти главу держави</button>
+      <div class="gov-subhead">Парламент</div>
+      <div class="gov-metrics"><div><small>МІСЦЬ</small><b id="parliamentSeats">30</b></div><div><small>ЗАКОНИ</small><b id="lawCount">0</b></div></div>
+      <label class="economy-label" for="seatsInput">Кількість парламентських місць</label>
+      <input id="seatsInput" class="gov-input" type="number" min="10" max="500" step="10" value="30">
+      <button id="saveSeatsBtn" class="secondary">Налаштувати парламент</button>
+      <div class="gov-subhead">Міністерства</div>
+      <div id="ministryList" class="ministry-list"></div>
+      <label class="economy-label" for="ministrySelect">Призначити міністра</label>
+      <select id="ministrySelect" class="economy-select">
+        <option>Фінансів</option><option>Освіти</option><option>Інфраструктури</option><option>Охорони здоров'я</option><option>Закордонних справ</option><option>Культури</option>
+      </select>
+      <input id="ministerInput" class="gov-input" maxlength="40" placeholder="Ім'я міністра">
+      <button id="appointMinisterBtn" class="secondary">Призначити міністра</button>
+      <div class="gov-subhead">Закони та рішення</div>
+      <input id="lawTitleInput" class="gov-input" maxlength="70" placeholder="Назва законопроєкту">
+      <textarea id="lawTextInput" class="gov-input" maxlength="240" rows="3" placeholder="Короткий опис закону або рішення"></textarea>
+      <button id="proposeLawBtn" class="primary">Подати законопроєкт</button>
+      <div id="lawList" class="law-list"></div>
+    </div>
+    <p class="data-note">Управління працює локально в демоверсії. Закони мають умовний статус і не впливають на реальну економіку чи інших гравців.</p>
+  </section>
+
+  <section class="economy-card" id="economyCard">
+    <div class="section-head"><div><small>НЕЗАЛЕЖНА ЕКОНОМІКА РЕГІОНІВ</small><h2>Економіка</h2></div><span class="live-dot">LOCAL SIM</span></div>
+    <p class="region-description">Кожен регіон має окремий бюджет, доходи, податки та інфраструктуру. Кошти не об'єднуються з іншими регіонами.</p>
+    <label class="economy-label" for="economyRegion">Регіон для тестування</label>
+    <select id="economyRegion" class="economy-select">
+      <option value="Вінницька область">Вінницька область</option>
+      <option value="Київська область">Київська область</option>
+      <option value="Львівська область">Львівська область</option>
+    </select>
+    <div class="treasury">
+      <small>БЮДЖЕТ РЕГІОНУ</small>
+      <div><strong id="economyBalance">1 000</strong><span> CW₵</span></div>
+      <p id="economyIncome">Дохід за хід: 120 CW₵</p>
+    </div>
+    <div class="economy-metrics">
+      <div><small>ПОДАТОК</small><b id="taxValue">10%</b></div>
+      <div><small>ІНФРАСТРУКТУРА</small><b id="infraValue">1 рівень</b></div>
+      <div><small>ЕКОНОМІКА</small><b id="econValue">Початкова</b></div>
+    </div>
+    <label class="economy-label" for="taxSelect">Регіональна ставка податку</label>
+    <select id="taxSelect" class="economy-select">
+      <option value="5">5% · низька</option><option value="10" selected>10% · помірна</option>
+      <option value="15">15% · підвищена</option><option value="20">20% · висока</option>
+    </select>
+    <div class="economy-actions">
+      <button id="investBtn" class="primary">🏗️ Інвестувати в інфраструктуру · 250 CW₵</button>
+      <button id="turnBtn" class="secondary">⏩ Завершити економічний хід</button>
+    </div>
+    <div id="economyLog" class="economy-log">Економічний журнал поки порожній.</div>
+    <p class="data-note">Усі суми та показники тут — умовний ігровий баланс, а не реальна статистика регіонів. Економіка зберігається окремо для кожного регіону на цьому пристрої.</p>
+  </section>
+
+
+  <section class="account-card" id="accountCard">
+    <div class="section-head"><div><small>ОСОБИСТІСТЬ У СВІТІ</small><h2>Профіль гравця</h2></div><span class="live-dot">OFFLINE</span></div>
+    <div class="account-profile">
+      <div class="account-avatar" id="accountAvatar">?</div>
+      <div class="account-identity"><b id="accountNickView">Новий гравець</b><small id="accountCodeView">Код: CW-LOCAL</small><small id="accountBioView">Профіль ще не налаштовано</small></div>
+    </div>
+    <label class="economy-label" for="accountNick">Ігровий нікнейм</label><input id="accountNick" maxlength="24" class="economy-select" placeholder="Введи нікнейм">
+    <label class="economy-label" for="accountBio">Про себе</label><textarea id="accountBio" maxlength="120" rows="2" class="economy-select" placeholder="Короткий опис профілю"></textarea>
+    <label class="economy-label" for="accountRegion">Основний регіон</label><input id="accountRegion" maxlength="50" class="economy-select" placeholder="Наприклад, Вінницька область">
+    <button id="saveAccountBtn" class="primary">Зберегти профіль</button>
+    <div class="diplomacy-subhead">Гравці та запрошення</div>
+    <p class="region-description">Тут відображається твій локальний профіль. Справжній пошук гравців і надсилання запрошень з'являться після підключення онлайн-сервера.</p>
+    <div class="player-code-row"><span id="playerCode">CW-LOCAL</span><button id="copyPlayerCode" class="secondary">Копіювати код</button></div>
+    <div id="inviteLog" class="diplomacy-list"><p class="empty-parties">Запрошень поки немає.</p></div>
+    <p class="data-note">Це локальний профіль без пароля та без реєстрації на сервері. Не вводь сюди паролі чи особисті контактні дані.</p>
+  </section>
+
+
+  <section class="account-card" id="onlineAccountCard">
+    <div class="section-head"><div><small>МЕРЕЖЕВА ІНФРАСТРУКТУРА · v1.0</small><h2>Онлайн-акаунт</h2></div><span class="live-dot">API READY</span></div>
+    <p class="region-description">Підключення до сервера Chemis World. Після налаштування адреси API можна зареєструвати акаунт або увійти.</p>
+    <label class="economy-label" for="apiBaseUrl">Адреса сервера HTTPS</label>
+    <input id="apiBaseUrl" class="economy-select" placeholder="https://твій-сервер.example">
+    <label class="economy-label" for="onlineNick">Нікнейм</label><input id="onlineNick" class="economy-select" maxlength="24" autocomplete="username" placeholder="Ігровий нікнейм">
+    <label class="economy-label" for="onlinePassword">Пароль</label><input id="onlinePassword" type="password" class="economy-select" maxlength="128" autocomplete="current-password" placeholder="Мінімум 10 символів">
+    <div class="economy-actions">
+      <button id="onlineRegisterBtn" class="primary">Створити онлайн-акаунт</button>
+      <button id="onlineLoginBtn" class="secondary">Увійти</button>
+      <button id="onlineLogoutBtn" class="secondary">Вийти з акаунта</button>
+    </div>
+    <div id="onlineStatus" class="economy-log" role="status">Сервер ще не налаштовано. Не вводь справжні паролі від інших сервісів.</div>
+    <div id="onlinePlayerPanel" hidden>
+      <div class="diplomacy-subhead">Каталог гравців</div>
+      <input id="playerSearchInput" class="economy-select" placeholder="Пошук за нікнеймом">
+      <button id="playerSearchBtn" class="secondary">Знайти гравців</button>
+      <div id="onlinePlayersList" class="diplomacy-list"></div>
+      <div class="diplomacy-subhead">Спільний реєстр держав</div>
+      <button id="syncStatesBtn" class="primary">Опублікувати мої локальні держави</button>
+      <button id="refreshStatesBtn" class="secondary">Оновити список держав</button>
+      <div id="onlineStatesList" class="diplomacy-list"></div>
+      <div class="diplomacy-subhead">Політика держави · онлайн</div>
+      <label class="economy-label" for="politicsStateSelect">Держава</label>
+      <select id="politicsStateSelect" class="economy-select"><option value="">Спочатку онови список держав</option></select>
+      <label class="economy-label" for="onlinePartyName">Назва партії</label><input id="onlinePartyName" class="economy-select" maxlength="50" placeholder="Назва політичної партії">
+      <label class="economy-label" for="onlinePartyIdeology">Ідеологія</label><input id="onlinePartyIdeology" class="economy-select" maxlength="60" placeholder="Напрям або ідеологія">
+      <label class="economy-label" for="onlinePartyPlatform">Коротка програма</label><textarea id="onlinePartyPlatform" rows="2" maxlength="300" class="economy-select" placeholder="Основні цілі партії"></textarea>
+      <button id="createOnlinePartyBtn" class="secondary">Зареєструвати партію</button>
+      <button id="createOnlineElectionBtn" class="primary">Оголосити вибори (власник держави)</button>
+      <div class="diplomacy-subhead">Законопроєкти</div>
+      <input id="onlineLawTitle" class="economy-select" maxlength="80" placeholder="Назва законопроєкту">
+      <textarea id="onlineLawDescription" rows="2" maxlength="1000" class="economy-select" placeholder="Опис законопроєкту"></textarea>
+      <button id="submitOnlineLawBtn" class="secondary">Подати законопроєкт</button>
+      <div class="diplomacy-subhead">Уряд після виборів</div>
+      <input id="onlinePrimeMinister" class="economy-select" maxlength="60" placeholder="Ім’я прем’єр-міністра">
+      <textarea id="onlineMinisters" rows="4" class="economy-select" placeholder="Міністри — по одному на рядок у форматі: Фінанси: Ім’я&#10;Освіта: Ім’я&#10;Інфраструктура: Ім’я"></textarea>
+      <button id="formOnlineGovernmentBtn" class="secondary">Сформувати уряд (власник)</button>
+      <div class="diplomacy-subhead">Регіональне управління та місцеві ради</div>
+      <input id="regionalTerritoryKey" class="economy-select" placeholder="Точний ключ території з реєстру">
+      <input id="regionalGovernorNick" class="economy-select" maxlength="30" placeholder="Нікнейм керівника регіону">
+      <button id="appointRegionalGovernorBtn" class="secondary">Призначити керівника (власник)</button>
+      <textarea id="regionalCandidates" class="economy-select" rows="3" placeholder="Кандидати на місцевих виборах — кожен з нового рядка"></textarea>
+      <button id="createRegionalElectionBtn" class="secondary">Оголосити місцеві вибори (власник)</button>
+      <button id="refreshRegionalBtn" class="secondary">Оновити регіональне управління</button>
+      <div id="onlineRegionalList" class="diplomacy-list"></div>
+      <div class="diplomacy-subhead">Економіка та розвиток регіону</div>
+      <input id="regionalEconomyKey" class="economy-select" placeholder="Точний ключ території">
+      <label class="economy-label" for="regionalTaxRate">Місцева податкова ставка (%)</label>
+      <input id="regionalTaxRate" class="economy-select" type="number" min="0" max="25" value="10">
+      <button id="saveRegionalTaxBtn" class="secondary">Зберегти податок</button>
+      <button id="collectRegionalIncomeBtn" class="secondary">Отримати дохід регіону</button>
+      <label class="economy-label" for="regionalBuildingType">Будівництво</label>
+      <select id="regionalBuildingType" class="economy-select">
+       <option>Школа</option><option>Лікарня</option><option>Дорога</option><option>Культурний центр</option><option>Водопостачання</option>
+      </select>
+      <button id="buildRegionalBtn" class="secondary">Побудувати об’єкт</button>
+      <div class="diplomacy-subhead">Мер міста</div>
+      <textarea id="mayorCandidates" class="economy-select" rows="2" placeholder="Кандидати в мери — кожен з нового рядка"></textarea>
+      <button id="createMayorElectionBtn" class="secondary">Оголосити вибори мера (власник)</button>
+      <div class="diplomacy-subhead">Місцеві законопроєкти</div>
+      <input id="regionalLawTitle" class="economy-select" maxlength="80" placeholder="Назва місцевого законопроєкту">
+      <textarea id="regionalLawDescription" class="economy-select" rows="2" maxlength="700" placeholder="Опис законопроєкту"></textarea>
+      <button id="createRegionalLawBtn" class="secondary">Подати місцевий законопроєкт</button>
+      <button id="refreshRegionalEconomyBtn" class="secondary">Оновити економіку та вибори</button>
+      <div id="regionalEconomyPanel" class="diplomacy-list"></div>
+      <div class="diplomacy-subhead">Міста та міський розвиток</div>
+      <input id="cityRegionKey" class="economy-select" placeholder="Точний ключ регіону">
+      <input id="cityName" class="economy-select" maxlength="60" placeholder="Назва нового міста">
+      <input id="cityPopulation" class="economy-select" type="number" min="1000" max="5000000" value="10000" placeholder="Початкове населення">
+      <button id="createCityBtn" class="secondary">Заснувати місто</button>
+      <label class="economy-label" for="cityProjectType">Міський проєкт</label>
+      <select id="cityProjectType" class="economy-select">
+       <option>Житловий квартал</option><option>Школа</option><option>Медичний центр</option><option>Транспортний вузол</option><option>Парк</option><option>Комунальна мережа</option>
+      </select>
+      <input id="cityMayorNick" class="economy-select" maxlength="24" placeholder="Нікнейм гравця для призначення мером">
+      <button id="refreshCitiesBtn" class="secondary">Оновити міста</button>
+      <div id="citiesPanel" class="diplomacy-list"></div>
+      <div class="diplomacy-subhead">Міські вибори та муніципальне управління</div>
+      <select id="cityElectionType" class="economy-select"><option value="mayor">Вибори міського голови</option><option value="council">Вибори міської ради</option></select>
+      <textarea id="cityElectionCandidates" class="economy-select" rows="3" placeholder="Нікнейми кандидатів — кожен з нового рядка"></textarea>
+      <button id="createCityElectionBtn" class="secondary">Оголосити міські вибори</button>
+      <input id="municipalTaxRate" class="economy-select" type="number" min="0" max="20" value="5" placeholder="Міський податок (%)">
+      <button id="saveMunicipalTaxBtn" class="secondary">Встановити міський податок</button>
+      <button id="collectMunicipalIncomeBtn" class="secondary">Отримати міський дохід</button>
+      <select id="municipalProjectType" class="economy-select">
+       <option>Міське освітлення</option><option>Прибирання вулиць</option><option>Дитячий майданчик</option><option>Бібліотека</option><option>Пішохідна зона</option>
+      </select>
+      <button id="buildMunicipalProjectBtn" class="secondary">Оплатити міський проєкт</button>
+      <input id="municipalProposalTitle" class="economy-select" maxlength="80" placeholder="Назва міської ініціативи">
+      <textarea id="municipalProposalDescription" class="economy-select" rows="2" maxlength="500" placeholder="Опис міської ініціативи"></textarea>
+      <button id="createMunicipalProposalBtn" class="secondary">Подати міську ініціативу</button>
+      <button id="refreshCityGovernanceBtn" class="secondary">Оновити міське управління</button>
+      <div id="cityGovernancePanel" class="diplomacy-list"></div>
+      <div id="onlinePoliticsList" class="diplomacy-list"></div>
+    </div>
+    <p class="data-note">Онлайн-функції запрацюють лише після розгортання backend-сервера та налаштування HTTPS. Токен сесії зберігається лише до закриття вкладки/сеансу. Не використовуй особистий пароль.</p>
+  </section>
+
+  <section class="quick">
+    <div class="section-head"><div><small>ІГРОВІ СИСТЕМИ</small><h2>Швидкий доступ</h2></div></div>
+    <div class="tiles">
+      <button class="tile" data-name="Політика"><span>🏛️</span><b>Політика</b><small>Партії та вибори</small></button>
+      <button class="tile" data-name="Економіка"><span>📊</span><b>Економіка</b><small>Бюджет і розвиток</small></button>
+      <button class="tile" data-name="Дипломатія"><span>🌐</span><b>Дипломатія</b><small>Відносини та угоди</small></button>
+      <button class="tile" data-name="Профіль"><span>👤</span><b>Профіль</b><small>Твій ігровий акаунт</small></button>
+    </div>
+  </section>
+</main>
+
+
+<div class="modal-backdrop" id="stateModal" aria-hidden="true">
+  <div class="modal">
+    <div class="section-head"><div><small>НОВА ДЕРЖАВА</small><h2>Заснування держави</h2></div><button id="closeStateModal" class="close-modal">✕</button></div>
+    <label for="stateName">Назва держави</label><input id="stateName" maxlength="40" placeholder="Наприклад, Республіка ...">
+    <label for="stateCapital">Столиця</label><input id="stateCapital" maxlength="40" placeholder="Назва столиці">
+    <label for="stateFlag">Основний колір прапора</label>
+    <select id="stateFlag"><option value="#247b68">Зелений</option><option value="#245a9b">Синій</option><option value="#a33b42">Червоний</option><option value="#b28a2d">Золотий</option><option value="#5d4b86">Фіолетовий</option><option value="#333d4b">Графітовий</option></select>
+    <label for="stateSymbol">Символ держави</label><input id="stateSymbol" maxlength="3" placeholder="★" value="★">
+    <button id="saveStateBtn" class="primary">Заснувати державу</button>
+    <p class="data-note">Перша територія автоматично стане початковою територією держави.</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="partyModal" aria-hidden="true">
+  <div class="modal">
+    <div class="section-head"><div><small>ПОЛІТИЧНА СИСТЕМА</small><h2>Нова партія</h2></div><button id="closePartyModal" class="close-modal">✕</button></div>
+    <label for="partyName">Назва партії</label>
+    <input id="partyName" maxlength="36" placeholder="Наприклад, Партія розвитку">
+    <label for="partyIdeology">Політичний напрям</label>
+    <select id="partyIdeology">
+      <option>Центризм</option><option>Соціал-демократія</option><option>Лібералізм</option><option>Консерватизм</option><option>Зелена політика</option><option>Регіоналізм</option><option>Громадянський рух</option>
+    </select>
+    <label for="partyProgram">Коротка програма</label>
+    <textarea id="partyProgram" maxlength="180" rows="3" placeholder="Освіта, інфраструктура, місцевий розвиток..."></textarea>
+    <button id="savePartyBtn" class="primary">Створити партію</button>
+    <p class="data-note">Демо-режим: партія буде збережена на цьому пристрої, без публікації в онлайн-світі.</p>
+  </div>
+</div>
+
+<nav class="bottom cw-bottom" aria-label="Головна навігація">
+  <button class="selected" data-tab="overview"><span>◆</span>Огляд</button>
+  <button data-tab="articles"><span>▤</span>Статті</button>
+  <button data-tab="work"><span>⚒</span>Робота</button>
+  <button data-tab="wars"><span>✹</span>Війни</button>
+  <button data-tab="profile"><span>●</span>Профіль</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
