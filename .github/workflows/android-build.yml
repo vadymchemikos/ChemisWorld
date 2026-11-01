@@ -18,7 +18,7 @@ jobs:
       - name: Extract project archive
         run: |
           mkdir -p /tmp/chemis
-          unzip -q ChemisWorld_Android_Build_Setup_v1.9.2.zip -d /tmp/chemis
+          unzip -q ChemisWorld_Android_Build_Setup_v2.0.0.zip -d /tmp/chemis
           cp -a /tmp/chemis/ChemisWorld/. .
 
       - name: Set up JDK 17
