@@ -18,7 +18,7 @@ jobs:
       - name: Extract project archive
         run: |
           mkdir -p /tmp/chemis
-          unzip -q ChemisWorld_v6.0.0.zip -d /tmp/chemis
+          unzip -q ChemisWorld_6.0.0_Web.zip -d /tmp/chemis
           cp -a /tmp/chemis/ChemisWorld/. .
 
       - name: Set up JDK 17
