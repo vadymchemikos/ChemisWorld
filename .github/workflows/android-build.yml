@@ -38,7 +38,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      -       - name: Build debug APK with Java and Kotlin 17
+      - name: Build debug APK with Java and Kotlin 17
         shell: bash
         run: |
           python3 - <<'PY'
