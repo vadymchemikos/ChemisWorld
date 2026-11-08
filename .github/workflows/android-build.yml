@@ -38,22 +38,59 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK with dependency download retries
+      -       - name: Build debug APK with Java and Kotlin 17
         shell: bash
         run: |
-          set -u
-          for attempt in 1 2 3 4; do
-            echo "APK build attempt ${attempt}/4"
-            if gradle --no-daemon --stacktrace :app:assembleDebug; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 4 ]; then
-              echo "Build failed. Waiting 30 seconds before retry..."
-              sleep 30
-            fi
-          done
-          echo "APK build failed after 4 attempts."
-          exit 1
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("app/build.gradle.kts")
+          s = p.read_text()
+
+          if "compileOptions {" in s:
+              s = re.sub(
+                  r'compileOptions\s*\{.*?\}',
+                  '''compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }''',
+                  s, count=1, flags=re.S
+              )
+          else:
+              s = s.replace("android {", """android {
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }""", 1)
+
+          if "kotlinOptions {" in s:
+              s = re.sub(
+                  r'kotlinOptions\s*\{.*?\}',
+                  '''kotlinOptions {
+                  jvmTarget = "17"
+              }''',
+                  s, count=1, flags=re.S
+              )
+          else:
+              pos = s.find("android {")
+              start = s.find("{", pos)
+              depth = 1
+              i = start + 1
+              while depth:
+                  if s[i] == "{": depth += 1
+                  elif s[i] == "}": depth -= 1
+                  i += 1
+              s = s[:i-1] + '''
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+          ''' + s[i-1:]
+
+          p.write_text(s)
+          PY
+
+          gradle --no-daemon --stacktrace :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
