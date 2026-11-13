@@ -1,4 +1,4 @@
-name: ChemisWorld 7.1.3 Android APK build
+name: ChemisWorld 7.1.4 Android APK build
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ARCHIVE="ChemisWorld_7.1.3_WEB_CLERK_FIX.zip"
+          ARCHIVE="ChemisWorld_7.1.4_WEB_CLERK_FIX.zip"
           test -f "$ARCHIVE" || { echo "Missing $ARCHIVE in repository root"; exit 1; }
           mkdir -p /tmp/chemis
           unzip -q "$ARCHIVE" -d /tmp/chemis
@@ -95,7 +95,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: chemisworld-7.1.3-debug-apk
+          name: chemisworld-7.1.4-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
